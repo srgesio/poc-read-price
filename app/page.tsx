@@ -28,37 +28,35 @@ const Home = () => {
   }, [])
 
   const captureImage = () => {
-    setInterval(() => {
-      if (videoRef.current && canvasRef.current) {
-        const context = canvasRef.current.getContext('2d')
-        canvasRef.current.width = videoRef.current.videoWidth
-        canvasRef.current.height = videoRef.current.videoHeight
-        context?.drawImage(videoRef.current, 0, 0)
-        const imageData = canvasRef.current.toDataURL('image/png')
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d')
+      canvasRef.current.width = videoRef.current.videoWidth
+      canvasRef.current.height = videoRef.current.videoHeight
+      context?.drawImage(videoRef.current, 0, 0)
+      const imageData = canvasRef.current.toDataURL('image/png')
 
-        Tesseract.recognize(
-          imageData,
-          'por',
-          {
-            logger: m => console.log(m),
-          }
-        ).then(({ data: { text } }) => {
-          const priceMatch = text.match(/R\$ ?\d+(\.\d{3})*,\d{2}/g)
-          setDataDetected(text)
-          if (!priceMatch) {
-            setPrice('error')
-            return
-          }
-          const priceNumber = Number(priceMatch.toString().split(' ')[1].replace(',', '.'))
-          setPrice(priceMatch[0])
-          setTotalPrice((prev) => prev + priceNumber)
-          setTimeout(() => {
-            setPrice('')
-            setDataDetected('')
-          }, 3000)
-        })
-      }
-    }, 1000)
+      Tesseract.recognize(
+        imageData,
+        'por',
+        {
+          logger: m => console.log(m),
+        }
+      ).then(({ data: { text } }) => {
+        const priceMatch = text.match(/R\$ ?\d+(\.\d{3})*,\d{2}/g)
+        setDataDetected(text)
+        if (!priceMatch) {
+          setPrice('error')
+          return
+        }
+        const priceNumber = Number(priceMatch.toString().split(' ')[1].replace(',', '.'))
+        setPrice(priceMatch[0])
+        setTotalPrice((prev) => prev + priceNumber)
+        setTimeout(() => {
+          setPrice('')
+          setDataDetected('')
+        }, 3000)
+      })
+    }
   }
 
   return (
