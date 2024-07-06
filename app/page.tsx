@@ -28,35 +28,37 @@ const Home = () => {
   }, [])
 
   const captureImage = () => {
-    if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext('2d')
-      canvasRef.current.width = videoRef.current.videoWidth
-      canvasRef.current.height = videoRef.current.videoHeight
-      context?.drawImage(videoRef.current, 0, 0)
-      const imageData = canvasRef.current.toDataURL('image/png')
+    setInterval(() => {
+      if (videoRef.current && canvasRef.current) {
+        const context = canvasRef.current.getContext('2d')
+        canvasRef.current.width = videoRef.current.videoWidth
+        canvasRef.current.height = videoRef.current.videoHeight
+        context?.drawImage(videoRef.current, 0, 0)
+        const imageData = canvasRef.current.toDataURL('image/png')
 
-      Tesseract.recognize(
-        imageData,
-        'por',
-        {
-          logger: m => console.log(m),
-        }
-      ).then(({ data: { text } }) => {
-        const priceMatch = text.match(/R\$ ?\d+(\.\d{3})*,\d{2}/g)
-        setDataDetected(text)
-        if (!priceMatch) {
-          setPrice('error')
-          return
-        }
-        const priceNumber = Number(priceMatch.toString().split(' ')[1].replace(',', '.'))
-        setPrice(priceMatch[0])
-        setTotalPrice((prev) => prev + priceNumber)
-        setTimeout(() => {
-          setPrice('')
-          setDataDetected('')
-        }, 3000)
-      })
-    }
+        Tesseract.recognize(
+          imageData,
+          'por',
+          {
+            logger: m => console.log(m),
+          }
+        ).then(({ data: { text } }) => {
+          const priceMatch = text.match(/R\$ ?\d+(\.\d{3})*,\d{2}/g)
+          setDataDetected(text)
+          if (!priceMatch) {
+            setPrice('error')
+            return
+          }
+          const priceNumber = Number(priceMatch.toString().split(' ')[1].replace(',', '.'))
+          setPrice(priceMatch[0])
+          setTotalPrice((prev) => prev + priceNumber)
+          setTimeout(() => {
+            setPrice('')
+            setDataDetected('')
+          }, 3000)
+        })
+      }
+    }, 1000)
   }
 
   return (
@@ -66,7 +68,7 @@ const Home = () => {
         <h1 className='font-black text-2xl'>POC Read Price</h1>
       </div>
       <div className={`relative flex flex-col items-center ${price && price !== 'error' && 'border-emerald-400'} ${price === 'error' && 'border-rose-600'} border-2`}>
-        <video ref={videoRef} autoPlay className='w-full'></video>
+        <video ref={videoRef} autoPlay playsInline className='w-full'></video>
         <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
         <span className={`absolute z-10 bottom-4 ${price && price !== 'error' && 'text-emerald-400'}`}>{price && price !== 'error' ? price : dataDetected}</span>
       </div>
