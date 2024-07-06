@@ -66,7 +66,7 @@ const Home = () => {
         <h1 className='font-black text-2xl'>POC Read Price</h1>
       </div>
       <div className={`relative flex flex-col items-center ${price && price !== 'error' && 'border-emerald-400'} ${price === 'error' && 'border-rose-600'} border-2`}>
-        <video ref={videoRef} autoPlay playsInline className='w-full'></video>
+        <video ref={videoRef} autoPlay playsInline className='w-full' controls={false}></video>
         <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
         <span className={`absolute z-10 bottom-4 ${price && price !== 'error' && 'text-emerald-400'}`}>{price && price !== 'error' ? price : dataDetected}</span>
       </div>
