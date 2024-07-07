@@ -29,6 +29,14 @@ const Home = () => {
     getCameraStream()
   }, [])
 
+  useEffect(() => {
+    //calculate totalprice when priceHistory changes
+    setTotalPrice(priceHistory.reduce((acc, item) => {
+      const priceNumber = Number(item?.price?.split(' ')[1]?.replace(',', '.'))
+      return acc + priceNumber
+    }, 0))
+  }, [priceHistory])
+
   const captureImage = () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext('2d')
@@ -68,22 +76,34 @@ const Home = () => {
 
         <h1 className='font-black text-2xl'>POC Read Price</h1>
       </div>
-      <div className={`relative flex flex-col items-center ${price && price !== 'error' && 'border-emerald-400'} ${price === 'error' && 'border-rose-600'} border-2`}>
-        <video ref={videoRef} autoPlay playsInline className='w-full' controls={false}></video>
-        <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-        <span className={`absolute z-10 bottom-4 ${price && price !== 'error' && 'text-emerald-400'}`}>{price && price !== 'error' ? price : dataDetected}</span>
+      <div>
+
+        <div className={`relative flex flex-col items-center ${price && price !== 'error' && 'border-emerald-400'} ${price === 'error' && 'border-rose-600'} border-2`}>
+          <video ref={videoRef} autoPlay playsInline className='w-full' controls={false}></video>
+          <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+          <span className={`absolute z-10 bottom-4 ${price && price !== 'error' && 'text-emerald-400'}`}>{price && price !== 'error' ? price : dataDetected}</span>
+        </div>
+        <button className='p-4 w-full bg-indigo-600' onClick={captureImage}>Detectar</button>
       </div>
-      <button className='p-2 bg-indigo-600' onClick={captureImage}>Detectar</button>
-      <p>Preço Detectado: {price !== 'error' ? price : ''}</p>
+      {price && price !== 'error' && <p className='text-emerald-400 font-bold'>Preço Detectado: {price}</p>}
       <div className='flex gap-2 items-center'>
         <span className='font-bold text-lg'>Valor total:</span>
         <span>R$ {totalPrice.toFixed(2).toString().replace('.', ',')}</span>
       </div>
-      <div>
+      <div className='w-full'>
         <h2 className='font-bold text-lg'>Histórico de preços</h2>
-        <ul>
-          {priceHistory.map((priceItem) => (
-            <li key={priceItem.id}>{priceItem.price}</li>
+        <ul className='flex flex-col gap-2'>
+          {priceHistory.map((priceItem, index) => (
+            <li key={priceItem.id} className='even:bg-zinc-800 odd:bg-zinc-600 rounded-md p-2'>
+              <div className='flex justify-between items-center gap-2'>
+                <span>{index + 1}. </span>
+                <span className='w-full'>{priceItem.price}</span>
+                <button className='bg-rose-600 p-2 w-12 rounded items-center justify-center' onClick={() => {
+                  setPriceHistory((prev) => prev.filter((item) => item.id !== priceItem.id))
+                }}>-</button>
+              </div>
+
+            </li>
           ))}
         </ul>
       </div>
