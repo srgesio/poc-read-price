@@ -33,7 +33,7 @@ const Home = () => {
     //calculate totalprice when priceHistory changes
     setTotalPrice(priceHistory.reduce((acc, item) => {
       const priceNumber = Number(item?.price?.split(' ')[1]?.replace(',', '.'))
-      return acc + priceNumber
+      return acc + (priceNumber * (item.multiply ? item.multiply : 1))
     }, 0))
   }, [priceHistory])
 
@@ -61,7 +61,7 @@ const Home = () => {
         const priceNumber = Number(priceMatch?.toString()?.split(' ')[1]?.replace(',', '.'))
         setPrice(priceMatch[0])
         setTotalPrice((prev) => prev + priceNumber)
-        setPriceHistory((prev) => [...prev, { id: randomUUID(), price: priceMatch[0] }])
+        setPriceHistory((prev) => [...prev, { id: randomUUID(), price: priceMatch[0], multiply: 1 }])
         setTimeout(() => {
           setPrice('')
           setDataDetected('')
@@ -98,9 +98,44 @@ const Home = () => {
               <div className='flex justify-between items-center gap-2'>
                 <span>{index + 1}. </span>
                 <span className='w-full'>{priceItem.price}</span>
-                <button className='bg-rose-600 p-2 w-12 rounded items-center justify-center' onClick={() => {
-                  setPriceHistory((prev) => prev.filter((item) => item.id !== priceItem.id))
-                }}>-</button>
+                <div className='flex gap-2 items-center w-full'>
+                  <button className='bg-zinc-900 p-2 w-12 rounded items-center justify-center'
+                    onClick={() => {
+                      setPriceHistory((prev) => prev.map((item) => {
+                        if (item.id === priceItem.id) {
+                          return {
+                            ...item,
+                            multiply: item.multiply ? item.multiply - 1 : 1,
+                          }
+                        }
+                        return item
+                      }))
+                    }}
+                  >
+                    -
+                  </button>
+                  <span className='px-4'>{priceItem.multiply ? priceItem.multiply : 1}</span>
+                  <button className='bg-emerald-400 p-2 w-12 rounded items-center justify-center'
+                    onClick={() => {
+                      setPriceHistory((prev) => prev.map((item) => {
+                        if (item.id === priceItem.id) {
+                          return {
+                            ...item,
+                            multiply: item.multiply ? item.multiply + 1 : 2,
+                          }
+                        }
+                        return item
+                      }))
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                <div className='flex gap-2'>
+                  <button className='bg-rose-600 p-2 w-12 rounded items-center justify-center' onClick={() => {
+                    setPriceHistory((prev) => prev.filter((item) => item.id !== priceItem.id))
+                  }}>X</button>
+                </div>
               </div>
 
             </li>
